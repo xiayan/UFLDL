@@ -42,40 +42,44 @@ b2grad = zeros(size(b2));
 % the gradient descent update to W1 would be W1 := W1 - alpha * W1grad, and similarly for W2, b1, b2. 
 % 
 
+m = double(size(data, 2));
+% Forward propagation
+Z2 = bsxfun(@plus, W1*data, b1);
+A2 = sigmoid(Z2);
+Z3 = bsxfun(@plus, W2*A2, b2);
+A3 = sigmoid(Z3);
 
+diff = A3 - data;
 
+squareError = 0.0;
+for i = 1:m
+    squareError = squareError + diff(:, i)' * diff(:, i);
+end
 
+% cost = 0.5 / m * sum(diag(diff' * diff)) + lambda / 2 * (sum(sum((W1 .^ 2))) ...
+%     + sum(sum(W2 .^ 2)));
 
+cost = 0.5 / m * squareError + lambda / 2 * (sum(sum((W1 .^ 2))) + sum(sum(W2 .^ 2)));
 
+% Square error term
+D3 = -1 * (data - A3) .* sigmoidGradient(Z3);
+D2 = W2' * D3 .* sigmoidGradient(Z2);
+W2g = D3 * A2';
+W1g = D2 * data';
 
+W1grad = 1 / m * W1g + lambda * W1;
+W2grad = 1 / m * W2g + lambda * W2;
+b1grad = 1 / m * (D2 * ones(m , 1));
+b2grad = 1 / m * (D3 * ones(m , 1));
 
+%
 
-
-
-
-
-
-
-
-
-
-
-%-------------------------------------------------------------------
+%-------------------------------- -----------------------------------
 % After computing the cost and gradient, we will convert the gradients back
 % to a vector format (suitable for minFunc).  Specifically, we will unroll
 % your gradient matrices into a vector.
 
 grad = [W1grad(:) ; W2grad(:) ; b1grad(:) ; b2grad(:)];
 
-end
-
-%-------------------------------------------------------------------
-% Here's an implementation of the sigmoid function, which you may find useful
-% in your computation of the costs and the gradients.  This inputs a (row or
-% column) vector (say (z1, z2, z3)) and returns (f(z1), f(z2), f(z3)). 
-
-function sigm = sigmoid(x)
-  
-    sigm = 1 ./ (1 + exp(-x));
 end
 

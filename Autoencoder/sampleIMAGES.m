@@ -5,7 +5,7 @@ function patches = sampleIMAGES()
 load IMAGES;    % load images from disk 
 
 patchsize = 8;  % we'll use 8x8 patches 
-numpatches = 10000;
+numpatches = 10;
 
 % Initialize patches with zeros.  Your code will fill in this matrix--one
 % column per patch, 10000 columns. 
@@ -24,14 +24,14 @@ patches = zeros(patchsize*patchsize, numpatches);
 %  patch corresponding to the pixels in the block (21,21) to (30,30) of
 %  Image 1
 
-
-
-
-
-
-
-
-
+for n=1:numpatches
+    [height, width, numPic] = size(IMAGES);
+    picIndex = randi(numPic);
+    randx = randi(width - patchsize + 1);
+    randy = randi(height - patchsize + 1);
+    patch = IMAGES(randy:randy+7, randx:randx+7, picIndex);
+    patches(:,n) = reshape(patch, patchsize * patchsize, 1);
+end
 
 %% ---------------------------------------------------------------
 % For the autoencoder to work well we need to normalize the data

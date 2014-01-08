@@ -20,7 +20,9 @@ sparsityParam = 0.01;   % desired average activation of the hidden units.
                      % (This was denoted by the Greek alphabet rho, which looks like a lower-case "p",
 		     %  in the lecture notes). 
 lambda = 0.0001;     % weight decay parameter       
-beta = 3;            % weight of sparsity penalty term       
+% beta = 3;            % weight of sparsity penalty term       
+% lambda = 0;
+beta = 0;
 
 %%======================================================================
 %% STEP 1: Implement sampleIMAGES
@@ -94,6 +96,7 @@ disp(diff); % Should be small. In our implementation, these values are
 
             % When you got this working, Congratulations!!! 
 
+pause;
 %%======================================================================
 %% STEP 4: After verifying that your implementation of
 %  sparseAutoencoderCost is correct, You can start training your sparse
