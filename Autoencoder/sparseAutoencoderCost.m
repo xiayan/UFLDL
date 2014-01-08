@@ -50,6 +50,8 @@ Z3 = bsxfun(@plus, W2*A2, b2);
 A3 = sigmoid(Z3);
 
 diff = A3 - data;
+p = sparsityParam;
+pHat = 1 / m * sum(A2, 2);
 
 squareError = 0.0;
 for i = 1:m
@@ -59,11 +61,13 @@ end
 % cost = 0.5 / m * sum(diag(diff' * diff)) + lambda / 2 * (sum(sum((W1 .^ 2))) ...
 %     + sum(sum(W2 .^ 2)));
 
-cost = 0.5 / m * squareError + lambda / 2 * (sum(sum((W1 .^ 2))) + sum(sum(W2 .^ 2)));
+cost = 0.5 / m * squareError + lambda / 2 * (sum(sum((W1 .^ 2))) + sum(sum(W2 .^ 2))) ...
+    + beta * sum(p * log(p./pHat) + (1 - p) * log((1 - p)./(1-pHat)));
 
 % Square error term
 D3 = -1 * (data - A3) .* sigmoidGradient(Z3);
-D2 = W2' * D3 .* sigmoidGradient(Z2);
+KL = beta * (-p./pHat + (1-p)./(1-pHat));
+D2 = bsxfun(@plus, W2' * D3, KL) .* sigmoidGradient(Z2);
 W2g = D3 * A2';
 W1g = D2 * data';
 
@@ -82,4 +86,3 @@ b2grad = 1 / m * (D3 * ones(m , 1));
 grad = [W1grad(:) ; W2grad(:) ; b1grad(:) ; b2grad(:)];
 
 end
-
