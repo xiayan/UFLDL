@@ -1,2 +1,4 @@
 *.zip
+*.mat
+.gitignore
 Vectorization/train-images-idx3-ubyte
