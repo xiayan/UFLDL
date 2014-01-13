@@ -25,7 +25,7 @@ beta = 3;            % weight of sparsity penalty term
 %%======================================================================
 %% STEP 1: Load training examples
 
-images = loadMNISTImages('train-images-idx3-ubyte');
+images = loadMNISTImages('../MNIST/train-images-idx3-ubyte');
 patches = images(:, 1:10000);
 display_network(patches(:,randi(size(patches,2),200,1)),8);
 
