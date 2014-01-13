@@ -58,9 +58,6 @@ for i = 1:m
     squareError = squareError + diff(:, i)' * diff(:, i);
 end
 
-% cost = 0.5 / m * sum(diag(diff' * diff)) + lambda / 2 * (sum(sum((W1 .^ 2))) ...
-%     + sum(sum(W2 .^ 2)));
-
 cost = 0.5 / m * squareError + lambda / 2 * (sum(sum((W1 .^ 2))) + sum(sum(W2 .^ 2))) ...
     + beta * sum(p * log(p./pHat) + (1 - p) * log((1 - p)./(1-pHat)));
 
