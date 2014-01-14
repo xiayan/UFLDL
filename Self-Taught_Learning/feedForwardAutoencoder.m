@@ -13,17 +13,9 @@ b1 = theta(2*hiddenSize*visibleSize+1:2*hiddenSize*visibleSize+hiddenSize);
 
 %% ---------- YOUR CODE HERE --------------------------------------
 %  Instructions: Compute the activation of the hidden layer for the Sparse Autoencoder.
-
+activation = sigmoid(bsxfun(@plus, W1*data, b1));
 
 %-------------------------------------------------------------------
 
 end
 
-%-------------------------------------------------------------------
-% Here's an implementation of the sigmoid function, which you may find useful
-% in your computation of the costs and the gradients.  This inputs a (row or
-% column) vector (say (z1, z2, z3)) and returns (f(z1), f(z2), f(z3)). 
-
-function sigm = sigmoid(x)
-    sigm = 1 ./ (1 + exp(-x));
-end
