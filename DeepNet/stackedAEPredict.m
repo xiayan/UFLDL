@@ -23,23 +23,26 @@ stack = params2stack(theta(hiddenSize*numClasses+1:end), netconfig);
 %% ---------- YOUR CODE HERE --------------------------------------
 %  Instructions: Compute pred using theta assuming that the labels start 
 %                from 1.
+% forward feed
+R = zeros(hiddenSize, size(data, 2));
+for d = 1:numel(stack)
+    cw = stack{d}.w;
+    cb = stack{d}.b;
+    if d == 1
+        R = bsxfun(@plus, cw*data, cb);
+    else
+        R = bsxfun(@plus, cw*R, cb);
+    end
+    R = sigmoid(R);
+end
 
+% SI: input to softmax classifier
+P = softmaxTheta * R;
+P = exp(bsxfun(@minus, P, max(P, [], 1)));
+P = bsxfun(@rdivide, P, sum(P));
 
-
-
-
-
-
-
-
-
-
+[y, pred] = max(P);
 % -----------------------------------------------------------
 
 end
 
-
-% You might find this useful
-function sigm = sigmoid(x)
-    sigm = 1 ./ (1 + exp(-x));
-end

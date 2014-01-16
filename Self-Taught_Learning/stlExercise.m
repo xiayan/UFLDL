@@ -68,8 +68,8 @@ theta = initializeParameters(hiddenSize, inputSize);
 % Do not train for W1 if W1.mat exists
 a=dir;
 b=struct2cell(a);
-if any(ismember(b(1,:),'W1.mat'))
-    load('W1.mat');
+if any(ismember(b(1,:),'opttheta.mat'))
+    load('opttheta.mat');
 else
     %% ----------------- YOUR CODE HERE ----------------------
     %  Find opttheta by running the sparse autoencoder on
@@ -84,11 +84,11 @@ else
                                      lambda, sparsityParam, ...
                                      beta, unlabeledData), ...
                                      theta, options);
-    W1 = reshape(opttheta(1:hiddenSize * inputSize), hiddenSize, inputSize);
-    save('W1.mat', 'W1');
+    save('opttheta.mat', 'opttheta');
 end
 %% -----------------------------------------------------
 
+W1 = reshape(opttheta(1:hiddenSize * inputSize), hiddenSize, inputSize);
 % Visualize weights
 display_network(W1', 12);
 fprintf('Features learned from autoencoder');

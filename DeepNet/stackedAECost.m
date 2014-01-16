@@ -1,11 +1,11 @@
 function [ cost, grad ] = stackedAECost(theta, inputSize, hiddenSize, ...
                                               numClasses, netconfig, ...
                                               lambda, data, labels)
-                                         
+
 % stackedAECost: Takes a trained softmaxTheta and a training data set with labels,
 % and returns cost and gradient using a stacked autoencoder model. Used for
 % finetuning.
-                                         
+
 % theta: trained weights from the autoencoder
 % visibleSize: the number of input units
 % hiddenSize:  the number of hidden units *at the 2nd layer*
@@ -39,7 +39,6 @@ cost = 0; % You need to compute this
 M = size(data, 2);
 groundTruth = full(sparse(labels, 1:M, 1));
 
-
 %% --------------------------- YOUR CODE HERE -----------------------------
 %  Instructions: Compute the cost function and gradient vector for 
 %                the stacked autoencoder.
@@ -61,19 +60,38 @@ groundTruth = full(sparse(labels, 1:M, 1));
 %                match exactly that of the size of the matrices in stack.
 %
 
+% forward feed
+F = cell(numel(stack)+1, 1);
+F{1}.a = data;
+for d = 2:numel(F)
+    cw = stack{d-1}.w;
+    cb = stack{d-1}.b;
+    F{d}.z = bsxfun(@plus, cw*F{d-1}.a, cb);
+    F{d}.a = sigmoid(F{d}.z);
+end
 
+% SI: input to softmax classifier
+SI = F{numel(F)}.a;
+P = softmaxTheta * SI;
+P = exp(bsxfun(@minus, P, max(P, [], 1)));
+P = bsxfun(@rdivide, P, sum(P));
 
+cost = -1/M * sum(sum(groundTruth.*log(P))) + lambda/2 * sum(sum(softmaxTheta.^2));
 
+softmaxThetaGrad = -1/M * (groundTruth - P) * SI' + lambda * softmaxTheta;
 
+deltas = cell(size(F));
+deltas{numel(deltas)} = -1 * softmaxTheta' * (groundTruth - P) .* ...
+                        sigmoidGradient(F{numel(F)}.z);
 
+for d = numel(deltas)-1:-1:2
+    deltas{d} = (stack{d}.w)' * deltas{d+1} .* sigmoidGradient(F{d}.z);
+end
 
-
-
-
-
-
-
-
+for d = 1:numel(stack)
+    stackgrad{d}.w = 1/M * deltas{d+1} * F{d}.a';
+    stackgrad{d}.b = 1/M * (deltas{d+1} * ones(M, 1));
+end
 
 % -------------------------------------------------------------------------
 
@@ -82,8 +100,3 @@ grad = [softmaxThetaGrad(:) ; stack2params(stackgrad)];
 
 end
 
-
-% You might find this useful
-function sigm = sigmoid(x)
-    sigm = 1 ./ (1 + exp(-x));
-end
