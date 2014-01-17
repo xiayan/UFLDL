@@ -19,11 +19,11 @@ numPatches = 100000;   % number of patches
 
 visibleSize = patchDim * patchDim * imageChannels;  % number of input units 
 outputSize  = visibleSize;   % number of output units
-hiddenSize  = 400;           % number of hidden units 
+hiddenSize  = 400;           % number of hidden units
 
 sparsityParam = 0.035; % desired average activation of the hidden units.
-lambda = 3e-3;         % weight decay parameter       
-beta = 5;              % weight of sparsity penalty term       
+lambda = 3e-3;         % weight decay parameters
+beta = 5;              % weight of sparsity penalty term
 
 epsilon = 0.1;	       % epsilon for ZCA whitening
 
@@ -112,7 +112,7 @@ displayColorNetwork(patches(:, 1:100));
 theta = initializeParameters(hiddenSize, visibleSize);
 
 % Use minFunc to minimize the function
-addpath minFunc/
+addpath ../minFunc/
 
 options = struct;
 options.Method = 'lbfgs'; 
@@ -120,14 +120,15 @@ options.maxIter = 400;
 options.display = 'on';
 
 [optTheta, cost] = minFunc( @(p) sparseAutoencoderLinearCost(p, ...
-                                   visibleSize, hiddenSize, ...
-                                   lambda, sparsityParam, ...
-                                   beta, patches), ...
-                              theta, options);
+                                 visibleSize, hiddenSize, ...
+                                 lambda, sparsityParam, ...
+                                 beta, patches), ...
+                                 theta, options);
 
 % Save the learned features and the preprocessing matrices for use in 
 % the later exercise on convolution and pooling
-fprintf('Saving learned features and preprocessing matrices...\n');                          
+fprintf('Saving learned features and preprocessing matrices...\n');
+
 save('STL10Features.mat', 'optTheta', 'ZCAWhite', 'meanPatch');
 fprintf('Saved\n');
 
