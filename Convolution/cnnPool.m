@@ -28,7 +28,7 @@ pooledFeatures = zeros(numFeatures, numImages, afterPoolDim, afterPoolDim);
 %   value of the featureNum feature for the imageNum image pooled over the
 %   corresponding (poolRow, poolCol) pooling region 
 %   (see http://ufldl/wiki/index.php/Pooling )
-%   
+%
 %   Use mean pooling here.
 % -------------------- YOUR CODE HERE --------------------
 for imageNum = 1:numImages
