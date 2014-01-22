@@ -125,7 +125,20 @@ assert(diff < 1e-8, 'Feature difference too large. Check your feature cost funct
 %  gradient as described in the instructions below, and then run the
 %  iterative optimization.
 
+numPatches = 20000;   % number of patches
+numFeatures = 121;    % number of features to learn
+patchDim = 8;         % patch dimension
+visibleSize = patchDim * patchDim; 
+poolDim = 3;
+batchNumPatches = 2000; 
+
+lambda = 5e-5;  % L1-regularisation parameter (on features)
+epsilon = 1e-5; % L1-regularisation epsilon |x| ~ sqrt(x^2 + epsilon)
+gamma = 1e-2;   % L2-regularisation parameter (on basis)
+patches = sampleIMAGES(images, patchDim, numPatches);
+
 % Initialize options for minFunc
+addpath ../minFunc/
 options.Method = 'lbfgs';
 options.display = 'off';
 options.verbose = 0;
@@ -180,37 +193,43 @@ for iteration = 1:200
     % Select a new batch
     indices = randperm(numPatches);
     indices = indices(1:batchNumPatches);
-    batchPatches = patches(:, indices);                    
+    batchPatches = patches(:, indices);
     
     % Reinitialize featureMatrix with respect to the new batch
     featureMatrix = weightMatrix' * batchPatches;
-    normWM = sum(weightMatrix .^ 2)';
+    normWM = sqrt(sum(weightMatrix .^ 2))';
     featureMatrix = bsxfun(@rdivide, featureMatrix, normWM); 
     
     % Optimize for feature matrix    
     options.maxIter = 20;
+    epsilon = 1e-2;
     [featureMatrix, cost] = minFunc( @(x) sparseCodingFeatureCost(weightMatrix, x, visibleSize, numFeatures, batchPatches, gamma, lambda, epsilon, groupMatrix), ...
                                            featureMatrix(:), options);
-    featureMatrix = reshape(featureMatrix, numFeatures, batchNumPatches);                                      
-       
+    featureMatrix = reshape(featureMatrix, numFeatures, batchNumPatches);
+
     % Optimize for weight matrix  
-    weightMatrix = zeros(visibleSize, numFeatures);     
+    % weightMatrix = zeros(visibleSize, numFeatures);     
     % -------------------- YOUR CODE HERE --------------------
     % Instructions:
     %   Fill in the analytic solution for weightMatrix that minimizes 
-    %   the weight cost here.     
+    %   the weight cost here
     %   Once that is done, use the code provided below to check that your
     %   closed form solution is correct.
     %   Once you have verified that your closed form solution is correct,
     %   you should comment out the checking code before running the
     %   optimization.
-    
+
+    yX = batchPatches;
+    yS = featureMatrix;
+    ym = size(yS, 1);
+    weightMatrix = yX * yS' * pinv(yS * yS' + gamma * eye(ym,ym));
+
     [cost, grad] = sparseCodingWeightCost(weightMatrix, featureMatrix, visibleSize, numFeatures, batchPatches, gamma, lambda, epsilon, groupMatrix);
+    norm(grad)
     assert(norm(grad) < 1e-12, 'Weight gradient should be close to 0. Check your closed form solution for weightMatrix again.')
     error('Weight gradient is okay. Comment out checking code before running optimization.');
-    % -------------------- YOUR CODE HERE --------------------   
-    
+    % -------------------- YOUR CODE HERE --------------------
     % Visualize learned basis
     figure(1);
-    display_network(weightMatrix);           
+    display_network(weightMatrix);
 end

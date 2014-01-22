@@ -1,5 +1,5 @@
 function [cost, grad] = sparseCodingWeightCost(weightMatrix, featureMatrix, visibleSize, numFeatures,  patches, gamma, lambda, epsilon, groupMatrix)
-%sparseCodingWeightCost - given the features in featureMatrix, 
+%sparseCodingWeightCost - given the features in featureMatrix,
 %                         computes the cost and gradient with respect to
 %                         the weights, given in weightMatrix
 % parameters
@@ -28,11 +28,21 @@ function [cost, grad] = sparseCodingWeightCost(weightMatrix, featureMatrix, visi
 
     weightMatrix = reshape(weightMatrix, visibleSize, numFeatures);
     featureMatrix = reshape(featureMatrix, numFeatures, numExamples);
-    
+    A = weightMatrix;
+    S = featureMatrix;
+    V = groupMatrix;
+
     % -------------------- YOUR CODE HERE --------------------
     % Instructions:
     %   Write code to compute the cost and gradient with respect to the
-    %   weights given in weightMatrix.     
-    % -------------------- YOUR CODE HERE --------------------    
+    %   weights given in weightMatrix
+    cost = trace((A*S-patches)' * (A*S-patches)) + ...
+           lambda * sum(sum(sqrt(V*S.^2 + epsilon))) + ...
+           gamma * trace(A'*A);
+
+    grad = 2 * (A*S - patches) * S' + 2 * gamma * A;
+    grad = grad(:);
+
+    % -------------------- YOUR CODE HERE --------------------
 
 end
